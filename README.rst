@@ -24,6 +24,7 @@ This module has been developed and tested on Spark 2.3 vs Python 3.
 
 Example on how to run k-modes clustering on data:
 
+```python
 	n_modes=36
 	partitions=10
 	max_iter=10
@@ -33,9 +34,11 @@ Example on how to run k-modes clustering on data:
 	method=IncrementalPartitionedKMetaModes(n_partitions = partitions, n_clusters = n_modes,max_dist_iter = max_iter,local_kmodes_iter = max_iter, similarity = "frequency", metamodessimilarity = "hamming")
     	
 	cluster_metamodes = method.calculate_metamodes(kmdata)
-	
+```
+
 Now the metamodes can be used, for example, to find the distance from each original data record to all metamodes using one of the existing distance functions, for example:
 
+```python
 	def distance_to_all(record):
     		sum_distance = 0
 		for diss in frequency_based_dissim(record, cluster_metamodes):
@@ -44,3 +47,4 @@ Now the metamodes can be used, for example, to find the distance from each origi
 		drow["distance"] = sum_distance
 		return Row(**drow)
 	data_with_distances = data.repartition(partitions).rdd.map(lambda record: distance_to_all(record))
+```
