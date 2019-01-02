@@ -1,9 +1,7 @@
-##########################
-pyspark-kmetamodes
-##########################
+# pyspark-kmetamodes
 
-Ensemble based distributed K-modes clustering for PySpark
----------------------------------------------------------
+
+## Ensemble based distributed K-modes clustering for PySpark
 
 Ensemble-based incremental distributed K-modes clustering for PySpark (Python 3), similar to the algorithm proposed by Visalakshi and Arunprabha in "Ensemble based Distributed K-Modes Clustering" (IJERD, March 2015) to perform K-modes clustering in an ensemble-based way.
 
@@ -17,12 +15,11 @@ This module uses several different distance functions for k-modes:
 
 This package was originally based on the work of `Marissa Saunders <marissa.saunders@thinkbiganalytics.com>` (https://github.com/ThinkBigAnalytics/pyspark-distributed-kmodes). However, due to the fact that the original package contained several major issues leading to incorrect incremental k-modes implementation and seems to be not maintained for several years, it was decided to perform a major refactoring fixing these issues, adding new distance functions (besides the existing hamming distance), etc.
 
-Usage
-------------
+## Usage
 
 This module has been developed and tested on Spark 2.3 vs Python 3.
 
-Example on how to run k-modes clustering on data:
+### Example on how to run k-modes clustering on data:
 
 ```python
 	n_modes=36
