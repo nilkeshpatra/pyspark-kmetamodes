@@ -1,8 +1,8 @@
 # pyspark-kmetamodes
 
-## Ensemble based distributed K-modes clustering for PySpark
+## Ensemble-based incremental distributed k-modes/k-metamodes clustering for PySpark
 
-Ensemble-based incremental distributed K-modes clustering for PySpark (Python 3), similar to the algorithm proposed by Visalakshi and Arunprabha in "Ensemble based Distributed K-Modes Clustering" (IJERD, March 2015) to perform K-modes clustering in an ensemble-based way.
+Ensemble-based incremental distributed k-modes clustering for PySpark (Python 3), similar to the algorithm proposed by Visalakshi and Arunprabha in "Ensemble based Distributed K-Modes Clustering" (IJERD, March 2015) to perform K-modes clustering in an ensemble-based way.
 
 In short, k-modes will be performed for each partition in order to identify a set of *modes* (of clusters) for each partition. Next, k-modes will be repeated to identify modes of a set of all modes from all partitions. These modes of modes are called *metamodes* here.
 
