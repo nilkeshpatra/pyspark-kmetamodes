@@ -1,53 +1,46 @@
-.. image:: docs/images/thinkbig.png
-
 ##########################
-pyspark-distributed-kmodes
+pyspark-kmetamodes
 ##########################
 
 Ensemble based distributed K-modes clustering for PySpark
 ---------------------------------------------------------
 
-This repository contains the source code for the `pyspark_kmodes` package to perform K-modes clustering in PySpark. The package implements the ensemble-based algorithm proposed by Visalakshi and Arunprabha (IJERD, March 2015).
+Ensemble-based incremental distributed K-modes clustering for PySpark (Python 3), similar to the algorithm proposed by Visalakshi and Arunprabha in "Ensemble based Distributed K-Modes Clustering" (IJERD, March 2015) to perform K-modes clustering in an ensemble-based way.
 
-K-modes clustering is performed on each partition of a Spark RDD, and the resulting clusters are collected to the driver node. Local K-modes clustering is then performed on the centroids returned from each partition to yield a final set of cluster centroids.
+In short, k-modes will be performed for each partition in order to identify a set of *modes* (of clusters) for each partition. Next, k-modes will be repeated to identify modes of a set of all modes from all partitions. These modes of modes are called *metamodes* here.
 
-This package was written by `Marissa Saunders <marissa.saunders@thinkbiganalytics.com>`_ and relies on an adaptation of the KModes package by Nico de Vos `https://github.com/nicodv/kmodes <https://github.com/nicodv/kmodes>`_ for the local iterations. Using this package for clustering Clickstream data is described by Marissa Saunders in this `YouTube video <https://www.youtube.com/watch?v=1fYBTehHHIU>`_.
+This module uses several different distance functions for k-modes:
 
+1) Hamming distance.
+2) Frequency-based dissimilarity proposed by He Z., Deng S., Xu X. in Improving K-Modes Algorithm Considering Frequencies of Attribute Values in Mode.
+3) My own (Andrey Sapegin) dissimilarity function, which is used for calculation of metamodes only. This distance function keeps track of and takes into account all frequencies of all unique values of all attributes in the cluster, and NOT only most frequent values that became the attributes of the mode/metamode. This work is planned to be published in the future.
 
-Installation
+This package was originally based on the work of `Marissa Saunders <marissa.saunders@thinkbiganalytics.com>` (https://github.com/ThinkBigAnalytics/pyspark-distributed-kmodes). However, due to the fact that the original package contained several major issues leading to incorrect incremental k-modes implementation and seems to be not maintained for several years, it was decided to perform a major refactoring fixing these issues, adding new distance functions (besides the existing hamming distance), etc.
+
+Usage
 ------------
 
-This module has been developed and tested on Spark 1.5.2 and 1.6.1 and should work under Python 2.7 and 3.5.
+This module has been developed and tested on Spark 2.3 vs Python 3.
 
-The module depends on scikit-learn 0.16+ (for ``check_array``). See ``requirements.txt`` for this and other package dependencies.
+Example on how to run k-modes clustering on data:
 
-Once cloned or downloaded, execute ``pip`` from the top-level directory to install:
+    		n_modes=36
+		partitions=10
+		max_iter=10
+	    	fraction = 50000 * partitions / (kmdata.count() * 1.0)
+	    	data = data.rdd.sample(False,fraction).toDF()
+	
+	    	method=IncrementalPartitionedKMetaModes(n_partitions = partitions, n_clusters = n_modes,max_dist_iter = max_iter,local_kmodes_iter = max_iter, similarity = "frequency", metamodessimilarity = "hamming")
+    	
+		cluster_metamodes = method.calculate_metamodes(kmdata)
+	
+	Now the metamodes can be used, for example, to find the distance from each original data record to all metamodes using one of the existing distance functions, for example:
 
-::
-
-    $ ls
-    LICENSE			README.rst		pyspark_kmodes		setup.cfg
-    MANIFEST.in		docs			requirements.txt	setup.py
-
-    $ pip install .
-    [...]
-
-
-Getting Started
----------------
-
-The ``docs`` directory includes a sample Jupyter/iPython notebook to demonstrate its use.
-
-::
-
-    $ cd docs
-
-    $ jupyter notebook PySpark-Distributed-KModes-example.ipynb 
-
-
-References
-----------
-
-* NK Visalakshi and K Arunprabha, 2015. *Ensemble based Distributed K-Modes Clustering*, International Journal of Engineering Research and Development, Vol. 11, No. 3, pp.79-89, `http://files.figshare.com/2011247/J1137989.pdf <http://files.figshare.com/2011247/J1137989.pdf>`_.
-
-* Zhexue Huang, 1998. *Extensions to the k-Means Algorithm for Clustering Large Data Sets with Categorical Values*, Data Mining and Knowledge Discovery 2, pp. 283–304, `http://www.cse.ust.hk/~qyang/537/Papers/huang98extensions.pdf <http://www.cse.ust.hk/~qyang/537/Papers/huang98extensions.pdf>`_.
+                def distance_to_all(record):
+    		    sum_distance = 0
+		    for diss in frequency_based_dissim(record, cluster_metamodes):
+			sum_distance += diss
+    		    drow = record.asDict()
+                    drow["distance"] = sum_distance
+                    return Row(**drow)
+                data_with_distances = data.repartition(partitions).rdd.map(lambda record: distance_to_all(record))
