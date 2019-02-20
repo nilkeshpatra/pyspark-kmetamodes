@@ -27,12 +27,12 @@ Example on how to run k-modes clustering on data:
     		n_modes=36
 		partitions=10
 		max_iter=10
-	    	fraction = 50000 * partitions / (kmdata.count() * 1.0)
+	    	fraction = 50000 * partitions / (data.count() * 1.0)
 	    	data = data.rdd.sample(False,fraction).toDF()
 	
 	    	method=IncrementalPartitionedKMetaModes(n_partitions = partitions, n_clusters = n_modes,max_dist_iter = max_iter,local_kmodes_iter = max_iter, similarity = "frequency", metamodessimilarity = "hamming")
     	
-		cluster_metamodes = method.calculate_metamodes(kmdata)
+		cluster_metamodes = method.calculate_metamodes(data)
 	
 	Now the metamodes can be used, for example, to find the distance from each original data record to all metamodes using one of the existing distance functions, for example:
 

@@ -36,18 +36,19 @@ def get_max_value_key(dic):
 
 class Metamode:
     def __init__(self, mode):
-        # Initialisation of mode object
+        # Initialisation of metamode object
         self.attrs = deepcopy(mode.attrs)
-        # the mode is initialised without frequencies, it means that the cluster does not contain any elements yet.
-        # So, frequencies should be set to 0
+        # the metamode is initialised with frequencies, it means that the metamode will have 1 element right after initialisation.
+        # So, frequencies are copied from the mode
         self.attr_frequencies = deepcopy(mode.attr_frequencies)
         # The count and freq are different from frequencies of mode attributes.
         # They contain frequencies/counts for all values in the cluster,
         # and not just frequencies of the most frequent attributes (stored in the mode)
         self.count = deepcopy(mode.count)
         self.freq = deepcopy(mode.freq) # used only to calculate distance to modes
-        # Number of members (modes) of the cluster with this metamode, initially set to 1 (contains mode from which initialisation was done)
+        # Number of members (modes) of this metamode, initially set to 1 (contains mode from which initialisation was done)
         self.nmembers = 1
+	# number of all records in all modes of this metamode
         self.nrecords = deepcopy(mode.nmembers)
 
     def calculate_freq(self):
