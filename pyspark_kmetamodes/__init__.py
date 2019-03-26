@@ -350,12 +350,14 @@ def partition_to_list(pindex,iterator,n_modes):
             partition_records.append(record)
 
         #modes
+	failed = 0
         for _ in range(3):
             i = 0
-            failed = 0
+            #failed = 0
             partition_clusters = []
             for index,value in random.sample(list(enumerate(partition_records)),n_modes):
-                partition_records[index].mode_id=pindex*n_modes+i
+                failed = 0
+		partition_records[index].mode_id=pindex*n_modes+i
                 partition_records[index].index=i
                 # check if there is a mode with same counts already in modes:
                 if (len(partition_clusters) > 0):
@@ -413,12 +415,14 @@ def k_modes_partitioned(rdd, n_clusters, max_iter, similarity, seed = None):
     return (new_clusters,mode_indexes)
 
 def k_metamodes_local(all_modes, n_clusters, max_iter, similarity, seed = None):
+    failed = 0
     for _ in range(3):
-        failed = 0
+        #failed = 0
         # initialise metamodes
         metamodes = []
         i = 0
         for index,value in random.sample(list(enumerate(all_modes)),n_clusters):
+	    failed = 0
             if (all_modes[index].nmembers == 0):
                 print("Warning! Mode without members identified!")
                 print(("Attributes: ",all_modes[index].attrs))
